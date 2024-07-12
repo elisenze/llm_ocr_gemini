@@ -6,6 +6,18 @@ conda activate myenv
 pip install -r requirements.txt
 ```
 
+If you don't have doppler installed, pdf2image will fail. Please install with 
+
+```
+sudo apt-get install poppler-utils
+````
+or 
+
+```
+brew install poppler
+
+```
+
 
 Run like this:
 
