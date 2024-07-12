@@ -1,5 +1,15 @@
-1. Setup a conda environment with Python version >= 3.10
-2. Install requirements.txt
-3. Run
+Create a virtual environment with Python >= 3.10
 
-python main.py --pdf_file_path /home/elihoole/Documents/senzmate/vietnamese-support/data/problemetic_documents/3.20-06-2024.pdf 
+```
+conda create --name myenv python=3.10 
+conda activate myenv
+pip install -r requirements.txt
+
+
+Run like this:
+
+```
+python main.py --pdf_file_path file_to_process.pdf
+```
+
+
