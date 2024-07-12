@@ -136,8 +136,17 @@ class DocToExtract:
         self.response = doc_response
 
 
+api_key_path = "api/api_key.txt"
+
+
+def load_api_key(API_Path: str) -> str:
+    with open(API_Path, "r") as file:
+        api_key = file.read().strip()
+        return api_key
+
+
 def setup_gemini() -> genai.GenerativeModel:
-    api_key_source = "AIzaSyAZs6lOgfisxnsiy2IryAVOx1f9kzEuQRU"
+    api_key_source = load_api_key(api_key_path)
     genai.configure(api_key=api_key_source)
     generation_config = get_generation_config()
     model = genai.GenerativeModel(
