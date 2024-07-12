@@ -2,18 +2,13 @@ import argparse
 import os
 import logging
 import timeit
-from typing import Dict, List, Tuple, Any
-
+from typing import Dict
 
 import json
-import numpy as np
-from PIL import Image
-import pandas as pd
 from pdf2image import convert_from_path, pdfinfo_from_path
-import datetime
 import google.generativeai as genai
 
-logger = logging.getLogger("medicard")
+logger = logging.getLogger("Fullerton-OCR")
 logger.setLevel(logging.INFO)
 sh = logging.StreamHandler()
 logger.addHandler(sh)
@@ -31,13 +26,14 @@ class DocToExtract:
         pdf_dir: str,
         output_dir: str,
     ) -> None:
-        self.doc_id = ""
-        self.doc_file_path = pdf_to_extract
-        self.pdf_dir = pdf_dir
-        self.output_dir = self.create_output_subdir_for_file(output_dir)
-        self.num_pages = pdfinfo_from_path(pdf_to_extract)["Pages"]
 
-    def create_output_subdir_for_file(self, output_dir):
+        self.doc_id: str = ""
+        self.doc_file_path: str = pdf_to_extract
+        self.pdf_dir: str = pdf_dir
+        self.output_dir: str = self.create_output_subdir_for_file(output_dir)
+        self.num_pages: Dict = pdfinfo_from_path(pdf_to_extract)["Pages"]
+
+    def create_output_subdir_for_file(self, output_dir: str) -> str:
         sub_dir_path = f"{self.doc_file_path.split('/')[-1].split('.')[0]}"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -48,7 +44,7 @@ class DocToExtract:
         logger.info(f"output_dir: {output_dir}")
         return output_dir
 
-    def parse_pages_to_extract(self, pages_to_extract: str) -> list:
+    def parse_pages_to_extract(self, pages_to_extract: str) -> None:
         """
         Extracts a list of page numbers from a given string containing page numbers or ranges.
 
@@ -140,7 +136,7 @@ class DocToExtract:
         self.response = doc_response
 
 
-def setup_gemini():
+def setup_gemini() -> genai.GenerativeModel:
     api_key_source = os.getenv("GEMINI_API_KEY")
     genai.configure(api_key=api_key_source)
     generation_config = get_generation_config()
@@ -152,13 +148,13 @@ def setup_gemini():
     return model
 
 
-def get_prompts():
+def get_prompts() -> Dict:
     with open("prompts.json", "r") as f:
         prompts = json.load(f)
     return prompts
 
 
-def get_generation_config():
+def get_generation_config() -> Dict:
     with open("gemini_config.json", "r") as f:
         generation_config = json.load(f)
     return generation_config
@@ -185,9 +181,18 @@ if __name__ == "__main__":
 
     document.parse_pages_to_extract(args.pages_to_extract)
     document.get_page_images()
-    document.process_with_gemini(model)
 
-    print(document.response)
+    try:
+        document.process_with_gemini(model)
+    except Exception as e:
+        logger.error(f"Error processing document: {e}")
+
+    if hasattr(document, "response"):
+        logger.info(f"Gemini response: {document.response}")
+        with open(
+            os.path.join(document.output_dir, "response.json"), "w"
+        ) as response_file:
+            json.dump(document.response, response_file)
 
     elapsed = timeit.default_timer() - start_time
 
