@@ -1,0 +1,4 @@
+# Python version MUST be >= 3.10
+pdf2image==1.17.0
+protobuf==5.27.2
+google-generativeai
