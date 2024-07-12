@@ -137,7 +137,7 @@ class DocToExtract:
 
 
 def setup_gemini() -> genai.GenerativeModel:
-    api_key_source = os.getenv("GEMINI_API_KEY")
+    api_key_source = "AIzaSyAZs6lOgfisxnsiy2IryAVOx1f9kzEuQRU"
     genai.configure(api_key=api_key_source)
     generation_config = get_generation_config()
     model = genai.GenerativeModel(
